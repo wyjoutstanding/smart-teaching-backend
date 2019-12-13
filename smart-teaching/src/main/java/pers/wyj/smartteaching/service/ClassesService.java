@@ -2,7 +2,10 @@ package pers.wyj.smartteaching.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pers.wyj.smartteaching.dao.ClassStudentEntityDao;
 import pers.wyj.smartteaching.dao.ClassesEntityDao;
+import pers.wyj.smartteaching.model.ClassStudentEntity;
 import pers.wyj.smartteaching.model.ClassesEntity;
 
 import java.util.Date;
@@ -15,9 +18,12 @@ import java.util.Random;
  * @Version 1.0
  */
 @Service
+@Transactional
 public class ClassesService {
     @Autowired
     ClassesEntityDao classesEntityDao;
+    @Autowired
+    ClassStudentEntityDao classStudentEntityDao;
 
     /**
      * 根据班级id生成唯一的邀请码
@@ -84,5 +90,22 @@ public class ClassesService {
      */
     public void deleteClassByClassId(Long classId) {
         classesEntityDao.deleteById(classId);
+    }
+
+    /**
+     * 退出对应班级
+     * @param classId
+     * @param studentId
+     */
+    public void quitClass(Long classId, Long studentId) {
+        classStudentEntityDao.deleteByClassIdAndStudentId(classId, studentId);
+    }
+
+    /**
+     * 更新班级信息
+     * @param classesEntity
+     */
+    public void updateClass(ClassesEntity classesEntity) {
+        classesEntityDao.save(classesEntity);
     }
 }
