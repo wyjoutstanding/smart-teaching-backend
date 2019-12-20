@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum FileType {
     RESOURCE("资源"),
     HOMEWORK("家庭作业"),
-    REPORT("报告");
+    REPORT("报告"),
+    ALLFILE("所有文件");
 
     FileType(String fileType) {
         this.fileType = fileType;

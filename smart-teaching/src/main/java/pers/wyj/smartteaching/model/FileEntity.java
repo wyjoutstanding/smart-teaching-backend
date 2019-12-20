@@ -86,4 +86,10 @@ public class FileEntity  implements Serializable {
    	@Column(name = "file_type" )
 	@Enumerated(value = EnumType.ORDINAL)
 	private FileType fileType;
+
+	/**
+	 * 文件上传时间
+	 */
+	@Column(name = "file_upload_time")
+	private Date fileUploadTime;
 }
