@@ -1,9 +1,7 @@
 package pers.wyj.smartteaching.webApi;
 
-import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pers.wyj.smartteaching.common.FileType;
@@ -23,10 +21,10 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * @Author: wuyangjun
-        * @Date: 2019/12/16 10:26
-        * @Version 1.0
-        */
+* @Author: wuyangjun
+* @Date: 2019/12/16 10:26
+* @Version 1.0
+*/
 @RestController
 @RequestMapping("/api/file/")
 @CrossOrigin

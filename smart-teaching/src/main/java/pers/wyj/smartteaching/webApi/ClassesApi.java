@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import pers.wyj.smartteaching.common.AccountType;
 import pers.wyj.smartteaching.common.WebApiResult;
 import pers.wyj.smartteaching.common.WebApiResultCode;
+import pers.wyj.smartteaching.dao.ClassHomeworkEntityDao;
 import pers.wyj.smartteaching.dao.ClassStudentEntityDao;
 import pers.wyj.smartteaching.dao.ClassesEntityDao;
 import pers.wyj.smartteaching.dao.UserEntityDao;
@@ -12,6 +13,7 @@ import pers.wyj.smartteaching.model.ClassStudentEntity;
 import pers.wyj.smartteaching.model.ClassesEntity;
 import pers.wyj.smartteaching.model.UserEntity;
 import pers.wyj.smartteaching.service.ClassesService;
+import pers.wyj.smartteaching.service.HomeworkService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +36,8 @@ public class ClassesApi {
     ClassStudentEntityDao classStudentEntityDao;
     @Autowired
     UserEntityDao userEntityDao;
+    @Autowired
+    HomeworkService homeworkService;
     /**
      * 教师创建班级
      * @param classesEntity 班级信息
@@ -88,6 +92,7 @@ public class ClassesApi {
     public WebApiResult deleteClass(Long teacherId, Long classId) {
         WebApiResult webApiResult = new WebApiResult(WebApiResultCode.NO_AUTH);
         if (classesEntityDao.existsByTeacherIdAndId(teacherId, classId)) {
+            homeworkService.deleteAllByClassId(classId); // 先删除外键依赖
             classesService.deleteClassByClassId(classId);
             webApiResult.setWebApiResult(WebApiResultCode.CLASS_DELETE_SUCCESS);
         }
