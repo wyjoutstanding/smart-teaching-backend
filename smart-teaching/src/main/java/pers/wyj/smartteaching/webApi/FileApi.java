@@ -7,7 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 import pers.wyj.smartteaching.common.FileType;
 import pers.wyj.smartteaching.common.WebApiResult;
 import pers.wyj.smartteaching.common.WebApiResultCode;
+import pers.wyj.smartteaching.dao.ReportEntityDao;
 import pers.wyj.smartteaching.model.FileEntity;
+import pers.wyj.smartteaching.model.ReportEntity;
 import pers.wyj.smartteaching.service.FileService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +31,9 @@ import java.util.Objects;
 @RequestMapping("/api/file/")
 @CrossOrigin
 public class FileApi {
+    @Autowired
+    ReportEntityDao reportEntityDao;
+    
     @Value("${prop.upload-folder}")
     private String UPLOAD_FOLDER;
 //    private Logger logger = LoggerFactory.getLogger(FileApi.class);
@@ -42,7 +47,61 @@ public class FileApi {
      * @return
      */
     @PostMapping("upload/singleFile")
-    public Object singleFileUpload(MultipartFile file, FileEntity fileEntity) {
+    public Object singleFileUpload(MultipartFile file, FileEntity fileEntity, Long homeworkId) {
+//        FileEntity fileEntity = new FileEntity();
+//        System.out.println("file:"+fileEntity.toString());
+////        logger.debug("传入的文件参数：{}", JSON.toJSONString(file, true));
+//        if (Objects.isNull(file) || file.isEmpty()) {
+////            logger.error("文件为空");
+//            System.out.println("空文件");
+//            return "文件为空，请重新上传";
+//        }
+//
+//        try {
+//            byte[] bytes = file.getBytes();
+////            fileEntity.setAuthorId(authorId);
+//            Date date = new Date();
+//            String fileName = file.getOriginalFilename();
+//            fileEntity.setFileName(Long.toString(date.getTime()) + "$" + fileName); // 日期加原文件名，保证唯一性
+//            fileEntity.setFileExtendName(fileName.substring(fileName.indexOf('.')+1, fileName.length())); // 扩展名
+//            fileEntity.setFileSavePath(fileEntity.getFileName());
+//            Path path = Paths.get(UPLOAD_FOLDER + fileEntity.getFileSavePath());
+//            System.out.println(fileEntity.toString());
+//            //如果没有files文件夹，则创建
+//            if (!Files.isWritable(path)) {
+//                Files.createDirectories(Paths.get(UPLOAD_FOLDER));
+//            }
+//            //文件写入指定路径
+//            Files.write(path, bytes);
+////            logger.debug("文件写入成功...");
+//            fileService.uploadFile(fileEntity);
+//            System.out.println("文件写入成功");
+//            return "文件上传成功";
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "后端异常...";
+//        }
+        System.out.println("=======homeworkId"+homeworkId);
+        fileService.fileUpload(file,fileEntity);
+        if (homeworkId != null) { // 报告处理
+            ReportEntity reportEntity = new ReportEntity();
+            reportEntity.setHomeworkId(homeworkId);
+            reportEntity.setStudentId(fileEntity.getAuthorId());
+            reportEntity.setReportFormat("任意");
+            reportEntityDao.save(reportEntity);
+        }
+        return new WebApiResult(WebApiResultCode.SUCCESS);
+    }
+
+    /**
+     * 上传报告
+     * @param file 文件
+     * @param fileEntity 文件实体
+     * @param homeworkId 作业id
+     * @return
+     */
+    @PostMapping("upload/Report")
+    public Object reportUpload(MultipartFile file, FileEntity fileEntity, Long homeworkId) {
 //        FileEntity fileEntity = new FileEntity();
         System.out.println("file:"+fileEntity.toString());
 //        logger.debug("传入的文件参数：{}", JSON.toJSONString(file, true));
@@ -77,7 +136,6 @@ public class FileApi {
             return "后端异常...";
         }
     }
-
     /**
      * 获取文件
      * @param authorId 上传者id

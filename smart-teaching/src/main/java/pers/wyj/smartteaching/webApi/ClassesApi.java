@@ -9,6 +9,7 @@ import pers.wyj.smartteaching.dao.ClassHomeworkEntityDao;
 import pers.wyj.smartteaching.dao.ClassStudentEntityDao;
 import pers.wyj.smartteaching.dao.ClassesEntityDao;
 import pers.wyj.smartteaching.dao.UserEntityDao;
+import pers.wyj.smartteaching.model.ClassRichInfo;
 import pers.wyj.smartteaching.model.ClassStudentEntity;
 import pers.wyj.smartteaching.model.ClassesEntity;
 import pers.wyj.smartteaching.model.UserEntity;
@@ -70,14 +71,25 @@ public class ClassesApi {
         if (userEntity != null) { // 用户存在
             if (userEntity.getAccountType() == AccountType.TEACHER) { // 教师
                 classesEntityList = classesService.getClassByTeacherId(id);
+                webApiResult.setWebApiResult(WebApiResultCode.SUCCESS, classesEntityList);
             }
             else { // 学生
+                List<ClassRichInfo> classRichInfos = new ArrayList<>();
+                ClassRichInfo classRichInfo;
+                ClassesEntity classesEntity;
                 List<ClassStudentEntity> classStudentEntityList = classStudentEntityDao.getAllByStudentId(id); // 获取该学生加入的所有班级
                 for (ClassStudentEntity classStudentEntity : classStudentEntityList) { // 提取班级
-                    classesEntityList.add(classesService.getClassById(classStudentEntity.getClassId()));
+                    classRichInfo = new ClassRichInfo();
+                    classesEntity = classesService.getClassById(classStudentEntity.getClassId());
+                    classRichInfo.setId(classesEntity.getId());
+                    classRichInfo.setClassName(classesEntity.getClassName()); // 班级名
+                    classRichInfo.setClassType(classesEntity.getClassType()); // 班级类型
+                    classRichInfo.setJoinTime(classStudentEntity.getJoinTime()); // 加入班级时间
+                    classRichInfo.setTeacherName(userEntityDao.getById(classesEntity.getTeacherId()).getUserName()); // 教师名
+                    classRichInfos.add(classRichInfo);
                 }
+                webApiResult.setWebApiResult(WebApiResultCode.SUCCESS, classRichInfos);
             }
-            webApiResult.setWebApiResult(WebApiResultCode.SUCCESS, classesEntityList);
         }
         return webApiResult;
     }
@@ -92,8 +104,9 @@ public class ClassesApi {
     public WebApiResult deleteClass(Long teacherId, Long classId) {
         WebApiResult webApiResult = new WebApiResult(WebApiResultCode.NO_AUTH);
         if (classesEntityDao.existsByTeacherIdAndId(teacherId, classId)) {
-            homeworkService.deleteAllByClassId(classId); // 先删除外键依赖
-            classesService.deleteClassByClassId(classId);
+            homeworkService.deleteAllByClassId(classId); // 删除班级-作业外键依赖
+            classesService.deleteAllByClassId(classId); // 删除班级-学生外键依赖
+            classesService.deleteByClassId(classId);
             webApiResult.setWebApiResult(WebApiResultCode.CLASS_DELETE_SUCCESS);
         }
         return webApiResult;

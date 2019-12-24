@@ -88,10 +88,17 @@ public class ClassesService {
      * 删除班级
      * @param classId
      */
-    public void deleteClassByClassId(Long classId) {
+    public void deleteByClassId(Long classId) {
         classesEntityDao.deleteById(classId);
     }
 
+    /**
+     * 删除所有 班级-学生（班级的外键）
+     * @param classId
+     */
+    public void deleteAllByClassId(Long classId) {
+        classStudentEntityDao.deleteAllByClassId(classId);
+    }
     /**
      * 退出对应班级
      * @param classId

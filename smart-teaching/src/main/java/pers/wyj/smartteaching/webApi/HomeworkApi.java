@@ -10,11 +10,10 @@ import pers.wyj.smartteaching.common.AccountType;
 import pers.wyj.smartteaching.common.WebApiResult;
 import pers.wyj.smartteaching.common.WebApiResultCode;
 import pers.wyj.smartteaching.dao.ClassHomeworkEntityDao;
+import pers.wyj.smartteaching.dao.ClassStudentEntityDao;
 import pers.wyj.smartteaching.dao.ClassesEntityDao;
 import pers.wyj.smartteaching.dao.HomeworkEntityDao;
-import pers.wyj.smartteaching.model.ClassHomeworkEntity;
-import pers.wyj.smartteaching.model.ClassHomeworkRichInfo;
-import pers.wyj.smartteaching.model.HomeworkEntity;
+import pers.wyj.smartteaching.model.*;
 import pers.wyj.smartteaching.service.ClassesService;
 import pers.wyj.smartteaching.service.HomeworkService;
 import pers.wyj.smartteaching.service.UserService;
@@ -45,6 +44,8 @@ public class HomeworkApi {
     ClassHomeworkEntityDao classHomeworkEntityDao;
     @Autowired
     ClassesService classesService;
+    @Autowired
+    ClassStudentEntityDao classStudentEntityDao;
     /**
      * 创建作业
      * @param homeworkEntity 作业信息
@@ -144,7 +145,24 @@ public class HomeworkApi {
                 webApiResult.setWebApiResult(WebApiResultCode.SUCCESS, classHomeworkRichInfos);
             }
             else if(accountType == AccountType.STUDENT) { // 学生
-                //TODO 学生1
+                //TODO 学生
+                List<ClassHomeworkRichInfo> classHomeworkRichInfos = new ArrayList<>();
+                ClassHomeworkRichInfo classHomeworkRichInfo;
+                List<ClassStudentEntity> classStudentEntityList = classStudentEntityDao.getAllByStudentId(userId); // 获取学生所有-学生班级
+//                ClassHomeworkEntity classHomeworkEntity = new ClassHomeworkEntity();
+                for (ClassStudentEntity classStudentEntity: classStudentEntityList) { // 遍历所有学生班级
+                    List<ClassHomeworkEntity> classHomeworkEntityList = classHomeworkEntityDao.getAllByClassId(classStudentEntity.getClassId());
+                    for (ClassHomeworkEntity classHomeworkEntity1: classHomeworkEntityList) { // 遍历每个班级对应的所有发布作业
+                        classHomeworkRichInfo = new ClassHomeworkRichInfo();
+                        classHomeworkRichInfo.setHomeworkEntity(homeworkEntityDao.getById(classHomeworkEntity1.getHomeworkId())); // 获取作业详细信息
+                        classHomeworkRichInfo.setHomeworkStartTime(classHomeworkEntity1.getHomeworkStartTime());
+                        classHomeworkRichInfo.setHomeworkDeadlineTime(classHomeworkEntity1.getHomeworkDeadlineTime());
+                        classHomeworkRichInfo.setClassHomeworkId(classHomeworkEntity1.getId());
+                        classHomeworkRichInfo.setClassName(classesService.getClassById(classHomeworkEntity1.getClassId()).getClassName());
+                        classHomeworkRichInfos.add(classHomeworkRichInfo);
+                    }
+                }
+                webApiResult.setWebApiResult(WebApiResultCode.SUCCESS, classHomeworkRichInfos);
             }
         }
         return webApiResult;

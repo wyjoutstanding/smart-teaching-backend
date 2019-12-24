@@ -19,5 +19,8 @@ public interface ClassStudentEntityDao extends JpaRepository<ClassStudentEntity,
 
     @Modifying
     void deleteByClassIdAndStudentId(Long classId, Long studentId); // 根据班级和学生id删除
+
+    @Modifying
+    void deleteAllByClassId(Long classId); // 根据班级id删除
 }
 
