@@ -32,7 +32,6 @@ public class ReportApi {
      * 提交报告？？前端接受到的file为空？？先弃用
      * @param multipartFile 文件内容
      * @param fileEntity 文件附加信息：上传者
-     * @param homeworkId 对应的作业id
      * @return
      */
     @PostMapping(value = "submitReport")
